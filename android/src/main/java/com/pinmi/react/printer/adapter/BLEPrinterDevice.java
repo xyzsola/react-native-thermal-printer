@@ -8,7 +8,6 @@ import com.facebook.react.bridge.WritableMap;
 /**
  * Created by xiesubin on 2017/9/21.
  */
-
 public class BLEPrinterDevice implements PrinterDevice {
     private BluetoothDevice mBluetoothDevice;
     private BLEPrinterDeviceId mPrinterDeviceId;
@@ -26,8 +25,8 @@ public class BLEPrinterDevice implements PrinterDevice {
     @Override
     public WritableMap toRNWritableMap() {
         WritableMap deviceMap = Arguments.createMap();
-        deviceMap.putString("inner_mac_address", this.mPrinterDeviceId.getInnerMacAddress());
-        deviceMap.putString("device_name", this.mBluetoothDevice.getName());
+        deviceMap.putString("innerMacAddress", this.mPrinterDeviceId.getInnerMacAddress());
+        deviceMap.putString("deviceName", this.mBluetoothDevice.getName());
         return deviceMap;
     }
 }

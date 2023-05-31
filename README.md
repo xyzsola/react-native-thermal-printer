@@ -1,7 +1,6 @@
-# react-native-thermal-receipt-printer
+# @intechnity/react-native-thermal-printer
 
 Fork of `react-native-thermal-receipt-printer` with added support for locales and QR Code Printing.
-This fork is not compatible 1:1 with the original version. The supported tags have changed.
 
 [react-native-thermal-receipt-printer](https://github.com/HeligPfleigh/react-native-thermal-receipt-printer)
 
@@ -21,15 +20,14 @@ This fork is not compatible 1:1 with the original version. The supported tags ha
 
 Supported attributes:
 
-| Attribute          | Description                             |
-|:------------------:|:---------------------------------------:|
-| font               | Font type, values: 0 - ?                |
-| align              | Align text, values: left, center, right |
-| fontWidth          | Font width, values: 0 - 4               |
-| fontHeight         | Font height, values: 0 - 4              |
-| bold               | Bold, values: 0 - 1                     |
-
-TODO more info from printer documentation about font types
+| Attribute          | Description                                  |
+|:------------------:|:--------------------------------------------:|
+| font               | Font type, values: 0 - ? (Research required) |
+| align              | Align text, values: left, center, right      |
+| fontWidth          | Font width, values: 0 - 4                    |
+| fontHeight         | Font height, values: 0 - 4                   |
+| bold               | Bold, values: 0 - 1                          |
+| base64             | If base64 encoded, values: 0 - 1             |
 
 ### NewLine
 
@@ -47,41 +45,93 @@ Supported attributes:
 
 | Attribute             | Description                             |
 |:---------------------:|:---------------------------------------:|
-| version               | Code type, values: 0 - ?                |
+| version               | Code type, values: 0 - 19               |
 | errorCorrectionLevel  | Error correction level, values: 0 - 3   |
 | magnification         | Magnification, values: 1 - 8            |
 
-TODO get more info from printer documentation about supported code types
+## IPrintOptions
+
+`IPrintOptions` is an interface that provides various options you can use for a print job when working with the `@intechnity/react-native-thermal-printer` library.
+
+### Options
+
+#### beep
+
+- **Type:** boolean
+
+The `beep` option triggers the printer to make a beep sound when the print job is complete, if the printer supports this feature.
+Default: false.
+
+#### cut
+
+- **Type:** boolean
+
+The `cut` option will command the printer to automatically cut the paper after the print job, if the printer supports this feature.
+Default: false.
+
+#### tailingLine
+
+- **Type:** boolean
+
+The `tailingLine` option instructs the printer to print an extra blank line at the end of the print job.
+Default: false.
+
+#### encoding
+
+- **Type:** string
+
+The `encoding` option sets the character encoding for the print job. The default is UTF-8. You should set this to match the encoding of the data you're sending. Incorrect encoding could result in garbled output.
+
+#### codepage
+
+- **Type:** number
+
+The `codepage` option specifies the code page that the printer should use to print the job. A code page is a table of characters that the printer uses to print text. Different code pages include different characters, so you should select the code page that includes all the characters you need.
+
 
 ## Usage
 
-```javascript
+```typescript
 import {
-  USBPrinter,
-  NetPrinter,
+  IBLEPrinterIdentity,
   BLEPrinter,
-} from "react-native-thermal-receipt-printer";
+} from "@intechnity/react-native-thermal-printer";
 
-USBPrinter.printText("<Text align='center' fontWidth='1' fontHeight='1'>Example text</Text>");
-USBPrinter.printBill("<Text>sample bill</Text>");
+await BLEPrinter.init();
+const devices = await BLEPrinter.getDeviceList();
+await BLEPrinter.connectPrinter(devices[0].innerMacAddress);
+
+const options: IPrintOptions = {
+  beep: true,
+  cut: true,
+  tailingLine: true,
+  encoding: 'UTF-8',
+  codepage: 0,
+};
+
+BLEPrinter.print(`
+<Printout>
+  <Text align='center' fontWidth='1' fontHeight='1'>Example text</Text>
+  <NewLine />
+  <Text align='right' fontWidth='1' fontHeight='1' bold='0'>Second line</Text>
+</Printout>`, options);
 ```
 
 ## Example
 
 ### USBPrinter (only supported on android)
 
-```typescript
-interface IUSBPrinter {
-  device_name: string;
-  vendor_id: number;
-  product_id: number;
-}
-```
+```tsx
+  import {
+    USBPrinter,
+    IUSBPrinterIdentity
+  } from '@intechnity/react-native-thermal-printer';
 
-```typescript
+  ...
+
   type State = {
-    printers: IUSBPrinter[];
-    currentPrinter: IUSBPrinter;
+    printers: IUSBPrinterIdentity[];
+    currentPrinter: IUSBPrinterIdentity;
   }
 
   ...
@@ -97,36 +147,38 @@ interface IUSBPrinter {
     }
   }
 
-  async connectPrinter(printer: IUSBPrinter) {
-    await USBPrinter.connectPrinter(printer.vendor_id, printer.product_id);
+  async connectPrinter(printer: IUSBPrinterIdentity) {
+    await USBPrinter.connectPrinter(printer.vendorId, printer.productId);
 
     this.setState({
       currentPrinter: printer
     });
   }
 
-  printText() {
-    USBPrinter.printText("<Text align='center' fontWidth='1' fontHeight='1'>Example text</Text>");
+  print() {
+    USBPrinter.print(`
+<Printout>
+  <Text align='center' fontWidth='1' fontHeight='1'>Example text</Text>
+  <NewLine />
+  <Text align='right' fontWidth='1' fontHeight='1' bold='0'>Second line</Text>
+</Printout>`);
   }
-
-  getPrinterDescription(printer: IUSBPrinter) {
-    return `device_name: ${printer.device_name}, vendor_id: ${printer.vendor_id}, product_id: ${printer.product_id}`;
+  
+  getPrinterDescription(printer: IUSBPrinterIdentity) {
+    return `deviceName: ${printer.deviceName}, vendorId: ${printer.vendorId}, productId: ${printer.productId}`;
   }
-
   ...
 
   return (
     <View style={styles.container}>
       {
         this.state.printers.map(printer => (
-          <TouchableOpacity key={printer.device_name} onPress={() => connectPrinter(printer)}>
+          <TouchableOpacity key={printer.deviceName} onPress={() => this.connectPrinter(printer)}>
             <Text>{this.getPrinterDescription(printer)}</Text>
           </TouchableOpacity>
         ))
       }
-      <TouchableOpacity onPress={() => this.printText()}>
-        <Text>Print Text</Text>
-      </TouchableOpacity>
+      <Button title='Print' onPress={() => this.print()} />
     </View>
   )
 
@@ -135,17 +187,17 @@ interface IUSBPrinter {
 
 ### BLEPrinter
 
-```typescript
-interface IBLEPrinter {
-  device_name: string;
-  inner_mac_address: string;
-}
-```
+```tsx
+  import {
+    BLEPrinter,
+    IBLEPrinterIdentity
+  } from '@intechnity/react-native-thermal-printer';
 
-```typescript
+  ...
+
   type State = {
-    printers: IBLEPrinter[];
-    currentPrinter: IBLEPrinter;
+    printers: IBLEPrinterIdentity[];
+    currentPrinter: IBLEPrinterIdentity;
   }
 
   ...
@@ -159,20 +211,25 @@ interface IBLEPrinter {
     });
   }
 
-  async connectPrinter(printer: IBLEPrinter) {
-    await BLEPrinter.connectPrinter(printer.inner_mac_address);
+  async connectPrinter(printer: IBLEPrinterIdentity) {
+    await BLEPrinter.connectPrinter(printer.innerMacAddress);
 
     this.setState({
       currentPrinter: printer
     });
   }
 
-  printText() {
-    BLEPrinter.printText("<Text align='center' fontWidth='1' fontHeight='1'>Example text</Text>");
+  print() {
+    BLEPrinter.print(`
+<Printout>
+  <Text align='center' fontWidth='1' fontHeight='1'>Example text</Text>
+  <NewLine />
+  <Text align='right' fontWidth='1' fontHeight='1' bold='0'>Second line</Text>
+</Printout>`);
   }
 
-  getPrinterDescription(printer: IBLEPrinter) {
-    return `device_name: ${printer.device_name}, inner_mac_address: ${printer.inner_mac_address}`;
+  getPrinterDescription(printer: IBLEPrinterIdentity) {
+    return `deviceName: ${printer.deviceName}, innerMacAddress: ${printer.innerMacAddress}`;
   }
 
   ...
@@ -181,14 +238,12 @@ interface IBLEPrinter {
     <View style={styles.container}>
       {
         this.state.printers.map(printer => (
-          <TouchableOpacity key={printer.device_name} onPress={() => connectPrinter(printer)}>
+          <TouchableOpacity key={printer.deviceName} onPress={() => this.connectPrinter(printer)}>
             <Text>{this.getPrinterDescription(printer)}</Text>
           </TouchableOpacity>
         ))
       }
-      <TouchableOpacity onPress={() => this.printText()}>
-        <Text>Print Text</Text>
-      </TouchableOpacity>
+      <Button title='Print' onPress={() => this.print()} />
     </View>
   )
 
@@ -197,47 +252,51 @@ interface IBLEPrinter {
 
 ### NetPrinter
 
-```typescript
-interface INetPrinter {
-  device_name: string;
-  host: string;
-  port: number;
-}
-```
-
 _Note:_ getDeviceList does support scanning in local network, but is not recommended
 
-```typescript
+```tsx
+  import {
+    NetPrinter,
+    INetPrinterIdentity
+  } from '@intechnity/react-native-thermal-printer';
+
+  ...
+
   type State = {
-    printers: INetPrinter[];
-    currentPrinter: INetPrinter;
+    printers: INetPrinterIdentity[];
+    currentPrinter: INetPrinterIdentity;
   }
 
   ...
 
   async componentDidMount() {
     await NetPrinter.init();
-    var availablePrinters = [{host: '192.168.10.241', port: 9100}];
+    var availablePrinters: INetPrinterIdentity[] = [{ deviceName: 'test', host: '192.168.1.1', port: 9100 }];
 
     this.setState({
       printers: availablePrinters
     });
   }
 
-  async connectPrinter(printer: INetPrinter) {
-    let printer = await NetPrinter.connectPrinter(printer.host, printer.port);
+  async connectPrinter(printer: INetPrinterIdentity) {
+    printer = await NetPrinter.connectPrinter(printer.host, printer.port);
 
     this.setState({
       currentPrinter: printer
     });
   }
 
-  printText() {
-    NetPrinter.printText("<Text align='center' fontWidth='1' fontHeight='1'>Example text</Text>");
+  print() {
+    NetPrinter.print(`
+<Printout>
+  <Text align='center' fontWidth='1' fontHeight='1'>Example text</Text>
+  <NewLine />
+  <Text align='right' fontWidth='1' fontHeight='1' bold='0'>Second line</Text>
+</Printout>`);
   }
 
-  getPrinterDescription(printer: INetPrinter) {
-    return `device_name: ${printer.device_name}, host: ${printer.host}, port: ${printer.port}`;
+  getPrinterDescription(printer: INetPrinterIdentity) {
+    return `deviceName: ${printer.deviceName}, host: ${printer.host}, port: ${printer.port}`;
   }
 
   ...
@@ -246,17 +305,19 @@ _Note:_ getDeviceList does support scanning in local network, but is not recomme
     <View style={styles.container}>
       {
         this.state.printers.map(printer => (
-          <TouchableOpacity key={printer.device_name} onPress={() => connectPrinter(printer)}>
+          <TouchableOpacity key={printer.deviceName} onPress={() => this.connectPrinter(printer)}>
             <Text>{this.getPrinterDescription(printer)}</Text>
           </TouchableOpacity>
         ))
       }
-      <TouchableOpacity onPress={() => this.printText()}>
-        <Text>Print Text</Text>
-      </TouchableOpacity>
+      <Button title='Print' onPress={() => this.print()} />
     </View>
   )
 
   ...
 
 ```
+
+## TODO
+- Supported font types
+- Supported QR codes

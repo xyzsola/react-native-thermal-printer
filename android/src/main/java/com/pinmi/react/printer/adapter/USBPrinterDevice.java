@@ -8,7 +8,6 @@ import com.facebook.react.bridge.WritableMap;
 /**
  * Created by xiesubin on 2017/9/21.
  */
-
 public class USBPrinterDevice implements PrinterDevice {
     private UsbDevice mDevice;
     private USBPrinterDeviceId usbPrinterDeviceId;
@@ -30,11 +29,10 @@ public class USBPrinterDevice implements PrinterDevice {
     @Override
     public WritableMap toRNWritableMap() {
         WritableMap deviceMap = Arguments.createMap();
-        deviceMap.putString("device_name", this.mDevice.getDeviceName());
+        deviceMap.putString("deviceName", this.mDevice.getDeviceName());
         deviceMap.putInt("device_id", this.mDevice.getDeviceId());
-        deviceMap.putInt("vendor_id", this.mDevice.getVendorId());
-        deviceMap.putInt("product_id", this.mDevice.getProductId());
+        deviceMap.putInt("vendorId", this.mDevice.getVendorId());
+        deviceMap.putInt("productId", this.mDevice.getProductId());
         return deviceMap;
     }
-
 }

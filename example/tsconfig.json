@@ -1,21 +1,11 @@
 {
+  "extends": "@tsconfig/react-native/tsconfig.json",
   "compilerOptions": {
-    "allowJs": true,
-    "allowSyntheticDefaultImports": true,
-    "esModuleInterop": true,
-    "isolatedModules": true,
-    "jsx": "react",
-    "lib": ["es6"],
-    "moduleResolution": "node",
-    "noEmit": true,
-    "strict": true,
-    "target": "esnext",
-    "baseUrl": ".", // This must be specified if "paths" is.
+    "baseUrl": ".",
     "paths": {
-      "react-native-thermal-receipt-printer": ["../src/index.ts"] // This mapping is relative to "baseUrl"
-    },
-    "typeRoots": ["./node_modules/@types/"]
-  },
-  "include": ["src"],
-  "exclude": ["node_modules", "babel.config.js", "metro.config.js"]
+      "@intechnity/react-native-thermal-printer": [
+        "../src/index.ts"
+      ] // This mapping is relative to "baseUrl"
+    }
+  }
 }
