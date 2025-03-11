@@ -33,7 +33,8 @@ const defaultOptions: IPrintOptions = {
   cut: false,
   tailingLine: false,
   encoding: 'UTF8',
-  codepage: 0
+  codepage: 0,
+  colWidth: 32
 };
 
 export function processText(text: string, options?: IPrintOptions): Buffer {
@@ -66,6 +67,10 @@ export function processText(text: string, options?: IPrintOptions): Buffer {
       case 'QRCode':
         addQRCode(node, bytes, options!);
         break;
+      
+      case 'Line': 
+        addLine(node, bytes, options);
+        break;
     }
   });
 
@@ -91,77 +96,108 @@ function addNewLine(bytes: BufferHelper, options: IPrintOptions) {
 }
 
 function addText(node: any, bytes: BufferHelper, options: IPrintOptions) {
-  let font = 0; //0 - 1
-  let align = 0; //left, center, right
-  let fontWidth = 0; //1 - 4
-  let fontHeight = 0; //1 - 4
-  let bold = 0; //1 or 0
-  let isBase64: boolean = false;
-
-  const stringToTargetAlignment: any = { 'left': 0, 'center': 1, 'right': 2 };
-  const intToTargetWidth = [0x00, 0x10, 0x20, 0x30];
-  const intToTargetHeight = [0x00, 0x01, 0x02, 0x03];
-
-  Object.keys(node.attributes).forEach((key) => {
-    switch (key) {
-      case 'font':
-        font = parseInt(node.attributes['font']);
-        break;
-
-      case 'align':
-        align = stringToTargetAlignment[node.attributes['align']];
-        break;
-
-      case 'fontWidth':
-        fontWidth = parseInt(node.attributes['fontWidth']);
-        fontWidth = intToTargetWidth[fontWidth];
-        break;
-
-      case 'fontHeight':
-        fontHeight = parseInt(node.attributes['fontHeight']);
-        fontHeight = intToTargetHeight[fontHeight];
-        break;
-
-      case 'bold':
-        if (node.attributes['bold'] == '1') {
-          bold = 1;
-        }
-        break;
-
-      case 'base64':
-        if (node.attributes['base64'] == '1') {
-          isBase64 = true;
-        }
-        break;
-    }
+  var font = 0; //0 - 1
+  var align = 0; //left, center, right
+  var fontWidth = 0; //1 - 4
+  var fontHeight = 0; //1 - 4
+  var bold = 0; //1 or 0
+  var isBase64 = false;
+  var stringToTargetAlignment = { 'left': 0, 'center': 1, 'right': 2 };
+  var intToTargetWidth = [0x00, 0x10, 0x20, 0x30];
+  var intToTargetHeight = [0x00, 0x01, 0x02, 0x03];
+  
+  Object.keys(node.attributes).forEach(function (key) {
+      switch (key) {
+          case 'font':
+              font = parseInt(node.attributes['font']);
+              break;
+          case 'align':
+              align = stringToTargetAlignment[node.attributes['align']];
+              break;
+          case 'fontWidth':
+              fontWidth = parseInt(node.attributes['fontWidth']);
+              fontWidth = intToTargetWidth[fontWidth];
+              break;
+          case 'fontHeight':
+              fontHeight = parseInt(node.attributes['fontHeight']);
+              fontHeight = intToTargetHeight[fontHeight];
+              break;
+          case 'bold':
+              if (node.attributes['bold'] == '1') {
+                  bold = 1;
+              }
+              break;
+          case 'base64':
+              if (node.attributes['base64'] == '1') {
+                  isBase64 = true;
+              }
+              break;
+      }
   });
-
-  let text = node.value;
+  
+  var text = node.value;
   if (isBase64) {
-    text = Buffer.from(text, 'base64').toString('utf-8');
+      text = Buffer.from(text, 'base64').toString('utf-8');
   }
-
-  let controlBytes = [
-    GS,
-    EXCLAMATION_MARK,
-    fontWidth + fontHeight,
-
-    ESC,
-    LETTER_E,
-    bold,
-
-    ESC,
-    LETTER_a,
-    align,
-
-    ESC,
-    LETTER_M,
-    font,
+  
+  // Tambahkan opsi indent: jika atribut "indent" ada, tambahkan spasi di depan teks
+  if (node.attributes && node.attributes.indent) {
+      var indentCount = parseInt(node.attributes.indent, 10);
+      if (!isNaN(indentCount) && indentCount > 0) {
+          text = ' '.repeat(indentCount) + text;
+      }
+  }
+  
+  if (text.indexOf('|') !== -1) {
+      var parts = text.split('|');
+      if (parts.length === 2) {
+          var leftText = parts[0].trim();
+          var rightText = parts[1].trim();
+          
+          var totalWidth = (options && options.colWidth) ? options.colWidth : 32;
+          
+          var spaceCount = totalWidth - leftText.length - rightText.length;
+          if (spaceCount < 1) {
+              spaceCount = 1;
+          }
+          var spaces = ' '.repeat(spaceCount);
+          text = leftText + spaces + rightText;
+      }
+  }
+  
+  var controlBytes = [
+      GS,
+      EXCLAMATION_MARK,
+      fontWidth + fontHeight,
+      ESC,
+      LETTER_E,
+      bold,
+      ESC,
+      LETTER_a,
+      align,
+      ESC,
+      LETTER_M,
+      font,
   ];
-
+  
   bytes.concat(buf(controlBytes));
-  bytes.concat(iconv.encode(text, options.encoding!));
+  bytes.concat(iconv.encode(text, options.encoding));
 }
+
+function addLine(node: any, bytes: BufferHelper, options: IPrintOptions) {
+  var totalWidth = (options && options.colWidth) ? options.colWidth : 32;
+  
+  var lineChar = '-';
+  if (node.attributes && node.attributes.lineChar) {
+    lineChar = node.attributes.lineChar;
+  }
+  
+  var line = lineChar.repeat(totalWidth);
+  
+  bytes.concat(iconv.encode(line, options.encoding));
+  bytes.concat(iconv.encode('\n', options.encoding));
+}
+
 
 function addQRCode(node: any, bytes: BufferHelper, options: IPrintOptions) {
   let version = 0; //0 - 19

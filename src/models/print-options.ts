@@ -4,4 +4,5 @@ export interface IPrintOptions {
   tailingLine?: boolean;
   encoding?: string;
   codepage?: number;
+  colWidth?: number;
 }
