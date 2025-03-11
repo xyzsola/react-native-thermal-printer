@@ -1,8 +1,8 @@
 # @intechnity/react-native-thermal-printer
 
-Fork of `react-native-thermal-receipt-printer` with added support for locales and QR Code Printing.
+Fork of `react-native-thermal-receipt-printer` with added support for column and Line printing.
 
-[react-native-thermal-receipt-printer](https://github.com/HeligPfleigh/react-native-thermal-receipt-printer)
+[react-native-thermal-receipt-printer](https://github.com/Intechnity-com/react-native-thermal-printer)
 
 ## Predefined tags
 
@@ -11,6 +11,7 @@ Fork of `react-native-thermal-receipt-printer` with added support for locales an
 | Text          | Prints normal text    |
 | NewLine       | Feed                  |
 | QRCode        | Prints QR Code        |
+| Line          | Prints Line           |
 
 ### Text
 
@@ -28,12 +29,32 @@ Supported attributes:
 | fontHeight         | Font height, values: 0 - 4                   |
 | bold               | Bold, values: 0 - 1                          |
 | base64             | If base64 encoded, values: 0 - 1             |
+| indent             | Text indentation                             |
+
+### Column Printing
+It will print text with column format (left and right align at the same line)
+
+```xml
+<Text align="left">Left text|Right Text</Text>
+```
 
 ### NewLine
 
 ```xml
 <NewLine />
 ```
+
+### Line
+
+```xml
+<Line lineChar='=' />
+```
+
+Supported attributes:
+
+| Attribute             | Description                             |
+|:---------------------:|:---------------------------------------:|
+| lineChar              | Custom Line character                   |
 
 ### QRCode
 
