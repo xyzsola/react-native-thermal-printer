@@ -115,6 +115,9 @@ The `encoding` option sets the character encoding for the print job. The default
 
 The `codepage` option specifies the code page that the printer should use to print the job. A code page is a table of characters that the printer uses to print text. Different code pages include different characters, so you should select the code page that includes all the characters you need.
 
+## Example
+
+![print example](./print_example.jpg)
 
 ## Usage
 
@@ -134,14 +137,42 @@ const options: IPrintOptions = {
   tailingLine: true,
   encoding: 'UTF-8',
   codepage: 0,
+  colWidth: 32
 };
 
 BLEPrinter.print(`
-<Printout>
-  <Text align='center' fontWidth='1' fontHeight='1'>Example text</Text>
-  <NewLine />
-  <Text align='right' fontWidth='1' fontHeight='1' bold='0'>Second line</Text>
-</Printout>`, options);
+  <Printout>
+    <Text align='center' fontWidth='1' fontHeight='1'>PT Moga Djaja</Text>
+    <NewLine />
+    <Text align='left'>Jl wonokromo, Surabaya</Text>
+    <NewLine />
+    <Line />
+    <Text align='left'>Milk Cleanser</Text>
+    <NewLine />
+    <Text align='left' indent='3'>0 KRT/2 LSN/1 BIJI</Text>
+    <NewLine />
+    <Text align='right'>200,000</Text>
+    <NewLine />
+    <Text align='left'>Milk Cleanser Lemon</Text>
+    <NewLine />
+    <Text align='left' indent='3'>0 KRT/12 LSN/1 BIJI</Text>
+    <NewLine />
+    <Text align='right'>550,000</Text>
+    <NewLine />
+    <Line />
+    <Text align='left'>Sub Total|750,000</Text>
+    <NewLine />
+    <Text align='left'>PPn 11%|82,500</Text>
+    <NewLine />
+    <Text align='left'>Grand Total|832,500</Text>
+    <Line />
+    <NewLine />
+    <Text align='center'>scan di sini</Text>
+    <NewLine />
+    <QRCode version='0' errorCorrectionLevel='3' magnification='6'>http://example.com</QRCode>
+    <NewLine />
+  </Printout>
+`, options);
 ```
 
 ## Example
