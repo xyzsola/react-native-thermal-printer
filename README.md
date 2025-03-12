@@ -309,11 +309,12 @@ _Note:_ getDeviceList does support scanning in local network, but is not recomme
 
   print() {
     NetPrinter.print(`
-<Printout>
-  <Text align='center' fontWidth='1' fontHeight='1'>Example text</Text>
-  <NewLine />
-  <Text align='right' fontWidth='1' fontHeight='1' bold='0'>Second line</Text>
-</Printout>`);
+      <Printout>
+        <Text align='center' fontWidth='1' fontHeight='1'>Example text</Text>
+        <NewLine />
+        <Text align='right' fontWidth='1' fontHeight='1' bold='0'>Second line</Text>
+      </Printout>
+    `);
   }
 
   getPrinterDescription(printer: INetPrinterIdentity) {
@@ -338,7 +339,3 @@ _Note:_ getDeviceList does support scanning in local network, but is not recomme
   ...
 
 ```
-
-## TODO
-- Supported font types
-- Supported QR codes
