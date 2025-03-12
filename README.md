@@ -1,8 +1,14 @@
-# @intechnity/react-native-thermal-printer
+# @xyzsola/react-native-thermal-printer
 
 Fork of `react-native-thermal-receipt-printer` with added support for column and Line printing.
 
 [react-native-thermal-receipt-printer](https://github.com/Intechnity-com/react-native-thermal-printer)
+
+## Install
+
+```
+npm i @xyzsola/react-native-thermal-printer
+```
 
 ## Predefined tags
 
@@ -72,7 +78,7 @@ Supported attributes:
 
 ## IPrintOptions
 
-`IPrintOptions` is an interface that provides various options you can use for a print job when working with the `@intechnity/react-native-thermal-printer` library.
+`IPrintOptions` is an interface that provides various options you can use for a print job when working with the `@xyzsola/react-native-thermal-printer` library.
 
 ### Options
 
@@ -116,7 +122,7 @@ The `codepage` option specifies the code page that the printer should use to pri
 import {
   IBLEPrinterIdentity,
   BLEPrinter,
-} from "@intechnity/react-native-thermal-printer";
+} from "@xyzsola/react-native-thermal-printer";
 
 await BLEPrinter.init();
 const devices = await BLEPrinter.getDeviceList();
@@ -146,7 +152,7 @@ BLEPrinter.print(`
   import {
     USBPrinter,
     IUSBPrinterIdentity
-  } from '@intechnity/react-native-thermal-printer';
+  } from '@xyzsola/react-native-thermal-printer';
 
   ...
 
@@ -212,7 +218,7 @@ BLEPrinter.print(`
   import {
     BLEPrinter,
     IBLEPrinterIdentity
-  } from '@intechnity/react-native-thermal-printer';
+  } from '@xyzsola/react-native-thermal-printer';
 
   ...
 
@@ -279,7 +285,7 @@ _Note:_ getDeviceList does support scanning in local network, but is not recomme
   import {
     NetPrinter,
     INetPrinterIdentity
-  } from '@intechnity/react-native-thermal-printer';
+  } from '@xyzsola/react-native-thermal-printer';
 
   ...
 
