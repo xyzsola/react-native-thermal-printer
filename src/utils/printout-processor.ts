@@ -69,7 +69,7 @@ export function processText(text: string, options?: IPrintOptions): Buffer {
         break;
       
       case 'Line': 
-        addLine(node, bytes, options);
+        addLine(node, bytes, options!);
         break;
     }
   });
@@ -112,7 +112,7 @@ function addText(node: any, bytes: BufferHelper, options: IPrintOptions) {
               font = parseInt(node.attributes['font']);
               break;
           case 'align':
-              align = stringToTargetAlignment[node.attributes['align']];
+            align = stringToTargetAlignment[node.attributes['align'] as keyof typeof stringToTargetAlignment];
               break;
           case 'fontWidth':
               fontWidth = parseInt(node.attributes['fontWidth']);
@@ -181,7 +181,7 @@ function addText(node: any, bytes: BufferHelper, options: IPrintOptions) {
   ];
   
   bytes.concat(buf(controlBytes));
-  bytes.concat(iconv.encode(text, options.encoding));
+  bytes.concat(iconv.encode(text, options.encoding!));
 }
 
 function addLine(node: any, bytes: BufferHelper, options: IPrintOptions) {
@@ -194,8 +194,8 @@ function addLine(node: any, bytes: BufferHelper, options: IPrintOptions) {
   
   var line = lineChar.repeat(totalWidth);
   
-  bytes.concat(iconv.encode(line, options.encoding));
-  bytes.concat(iconv.encode('\n', options.encoding));
+  bytes.concat(iconv.encode(line, options.encoding!));
+  bytes.concat(iconv.encode('\n', options.encoding!));
 }
 
 
